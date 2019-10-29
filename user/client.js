@@ -10,22 +10,24 @@ $(function () {
 
     $('#send').click(function (e) {
         e.preventDefault(); //prevents page reloading
-        socket.emit('chat message', $('#m').val());
-        $('#messages').append('<span id="own" class="w3-animate-bottom w3-border" style="text-align: left;background-color:rgb(187, 255, 160)"><Strong>'+ name + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br>' + $('#m').val() + '<br>' + '</span><span class="date"></span>');
-        
-        //$('#messages').append($('<li id="own" class="w3-animate-bottom w3-border" style="text-align: left;background-color:rgb(187, 255, 160);font-size: 10px">').text(getTimestamp() + ' ' + name + ' says: \n' + $('#m').val()));
-        //$('#messages').append($('<p id="own" class="w3-animate-bottom w3-border">').text(getTimestamp() + ' ' + name + ' says: ' + $('#m').val()));
+        if($('#m').val().length > 0){
+            socket.emit('chat message', $('#m').val());
+            $('#messages').append('<span id="own" class="w3-animate-bottom w3-border" style="text-align: left;background-color:rgb(187, 255, 160)"><Strong>'+ name + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br>' + $('#m').val() + '<br>' + '</span><span class="date"></span>');
+            //$('#messages').append($('<li id="own" class="w3-animate-bottom w3-border" style="text-align: left;background-color:rgb(187, 255, 160);font-size: 10px">').text(getTimestamp() + ' ' + name + ' says: \n' + $('#m').val()));
+            //$('#messages').append($('<p id="own" class="w3-animate-bottom w3-border">').text(getTimestamp() + ' ' + name + ' says: ' + $('#m').val()));
+            $('#m').val('');
+            $('#m').focus();
+            return false;
+        } else {
+            alert('Don\'t send empty messages!' );
+        }
 
-
-        $('#m').val('');
-        $('#m').focus();
-        return false;
     });
 
     $('#filebutton').click(function (e) {
         e.preventDefault();
         let blob = new Blob($('#uploadfile').prop('files'), {type: ($('#uploadfile'))[0].files[0].type});
-        console.log(($('#uploadfile'))[0].files[0]);
+        //console.log(($('#uploadfile'))[0].files[0]);
         var filename = ($('#uploadfile'))[0].files[0].name;
         let reader = new FileReader();
         reader.readAsDataURL(blob);
@@ -80,7 +82,6 @@ $(function () {
     socket.on('update-people',function (people) {
         $("#people").empty();
         $('#people').append('<h3>Users Connected:</h3></li>');
-        console.log('blib');
         $.each(people, function(clientid, name) {
             $('#people').append("<li>" + name + "</li>");
         });

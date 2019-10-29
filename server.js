@@ -2,7 +2,6 @@ var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-var fs = require('fs');
 var uploadid;
 var people = {};
 
@@ -17,23 +16,29 @@ io.on('connection', function (socket) {
         //io.emit('update', 'You have connected to the server');
         io.sockets.emit('update', name + ' has joined the server');
         io.sockets.emit('update-people', people);
-        console.log(Object.keys(people));
-        console.log(Object.values((people)));
     });
 
     //send
     socket.on('chat message', function (msg) {
+
         var date = getTimestamp();
         if (msg.charAt(0) == '@'){
-            var recepient = (msg.split(' ')[0]).slice(1);
-            console.log(recepient);
+            var index = 0;
+            /*
+            Split: @Username blblablaba -> ['@Username','blblablaba']
+            Slice: @Username -> Username
+            */
+            var recepientString = (msg.split(' ')[0]).slice(1);
+            var recepients = recepientString.split('@');
             var keys = Object.keys(people);
             var values = Object.values(people);
-            var RecepientIndex = values.indexOf(recepient);
-            io.to(keys[RecepientIndex]).emit('chat message', people[socket.id], msg, date)
+            recepients.forEach(function (recepient) {
+                var RecepientIndex = values.indexOf(recepient);
+                io.to(keys[RecepientIndex]).emit('chat message', people[socket.id], msg.trim(), date)
+            })
         } else {
             //io.sockets.emit('chat message', people[socket.id], msg, date);
-            socket.broadcast.emit('chat message', people[socket.id], msg, date);
+            socket.broadcast.emit('chat message', people[socket.id], msg.trim(), date);
         }
     });
 
