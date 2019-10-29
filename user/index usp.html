@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compati8ble" content="ie=edge">
+    <title>Socket.IO Chat</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div class="w3-container w3-display-middle" id="login">
+        <form class="w3-container">
+            <input class="w3-input" type="text" placeholder="Please Enter your Username" id="name" autocomplete="off">
+            <input class="w3-input" type="button" name="join" id="join" value="join">
+        </form>
+
+    </div>
+    <div class="w3-container w3-row" id="chat" style="height: 90%">
+        <div class="w3-container w3-col m2 l2">
+            <ul class="w3-ul" id="people"></ul>
+        </div>
+        <div class="w3-container w3-col m10 l10" style="overflow-scrolling: auto">
+            <ul class="w3-ul" id="messages">
+                <li><a download="test.jpg" href='#' id="testlink">test</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="w3-container w3-display-bottommiddle w3-row w3-threequarter" id="userinput" style="height: 10%">
+        <form action="" id="sendform">
+            <input class="w3-input" type="text" id="m" autocomplete="off" />
+            <button class="w3-button" id="send">Send</button>
+            <input type="file" id="uploadfile">
+            <button class="w3-button" id="filebutton">filebutton</button>
+        </form>
+    </div>
+
+<!--
+    <div class="w3-container" id="chat">
+        <div class="w3-container w3-row" id="userandchat">
+            <div class="w3-container w3-col m4 l3 w3-display-topleft" id="user">
+                <ul class="w3-ul" id="people"></ul>
+            </div>
+            <div class="w3-container w3-col m8 l9" id="chatwindow">
+                <ul id="messages"></ul>
+            </div>
+        </div>
+        <div class="w3-container w3-row" id="userinput">
+            <form class="w3-container" action="" id="send">
+                <input class="w3-input" type="text" id="m" autocomplete="off" />
+                <button class="w3-button">Send</button>
+            </form>
+        </div>
+
+    </div>
+-->
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="client.js"></script>
+    <script>
+                       /* $(function () {
+                            var name = ''
+                            var socket = io();
+                            $('#chat').hide();
+                            $('#name').focus();
+
+                            $('#send').submit(function (e) {
+                                e.preventDefault(); //prevents page reloading
+                                socket.emit('chat message', $('#m').val());
+                                $('#messages').append($('<li id="own">').text(getTimestamp() + ' ' + name + ' says: ' + $('#m').val()));
+                                $('#m').val('');
+                                return false;
+                            });
+
+                            $('#join').click(function () {
+                                var name = $('#name').val();
+                                if (name == ''){
+                                    alert('Name cannot be empty!')
+                                } else {
+                                    socket.emit('CheckName', name);
+                                }
+                            });
+
+                            socket.on('NameAlreadyInUse', function () {
+                                alert('Name is already in use');
+                            });
+
+                            socket.on('NameOK', function (username) {
+                                name = username;
+                                socket.emit('join',name);
+                                $('#login').detach();
+                                $('#chat').show();
+                                $('#m').focus();
+                            });
+
+                            socket.on('update', function (msg) {
+                                $('#messages').append($('<li>').text(msg));
+                            });
+
+                            socket.on('update-people',function (people) {
+                                console.log(people);
+                                $("#people").empty();
+                                $('#people').append('Users connected:');
+                                $.each(people, function(clientid, name) {
+                                    $('#people').append("<li>" + name + "</li>");
+                                });
+                            });
+/*
+                            socket.on('update-people', function (people) {
+                                console.log('update-people');
+                                $('#people').empty();
+                                $.each(people, function (clientid, name) {
+                                    $(#people).append('<li>' + name + '</li>')
+                                });
+                            });
+
+                            socket.on('chat message', function (people, msg, date) {
+                                $('#messages').append($('<li id="incoming">').text(date + ' ' + people + ' says: ' + msg));
+                            });
+                        });
+
+                        function getTimestamp(){
+                            var today = new Date();
+                            if ((String(today.getDate()).length) == 1) {
+                                var dd = '0' + (today.getDate());
+                            } else {
+                                var dd = today.getDate();
+                            }
+
+                            if ((String((today.getMonth() + 1)).length) == 1) {
+                                var mm = '0' + (today.getMonth()+1);
+                            } else {
+                                var mm = today.getMonth() + 1;
+                            }
+
+                            var yyyy = today.getFullYear();
+                            if ((String(today.getHours()).length) == 1) {
+                                var hr = '0' + today.getHours();
+                            } else {
+                                var hr = today.getHours();
+                            }
+
+                            if ((String(today.getMinutes()).length) == 1) {
+                                var mi = '0' + today.getMinutes();
+                            } else {
+                                var mi = today.getMinutes();
+                            }
+
+                            if ((String(today.getSeconds()).length) == 1) {
+                                var ss = '0' + today.getSeconds();
+                            } else {
+                                var ss = today.getSeconds();
+                            }
+                            return (dd + '.' + mm + '.' + yyyy + ' ' + hr + ':' + mi + ':' + ss);
+                        }*/
+    </script>
+
+</body>
+</html>

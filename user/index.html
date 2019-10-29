@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Sample Socket.io Chat</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+</head>
+
+<body>
+
+
+
+  <div class="container" style="background-color:rgb(180, 180, 180); height: 820px;" >
+
+<!--Headerbox mit Überschrieften und dem Login Form-->      
+
+    <div class="row"> 
+      <div class="col-md-12">
+        <div class="jumbotron" style="background-color:rgb(91, 222, 255); text-align: center;" >
+          <h1 class="display-3">WAAAASSSAAAAAAP</h1>
+          <p class="lead">Ask your Friends WASAAAAAAAAAP</p>
+          <hr class="m-y-1">
+
+<!--Login Screen mit Username eingabe. erst nachdem dies erfolgt ist, ist das eingabefeld für den chat zu sehen-->
+
+          <div class="w3-container w3-display-middle" id="login">
+            <form class="w3-container">
+              <div class="form-group">
+                <input class="form-control" type="text" placeholder="Please Enter your Username" id="name"autocomplete="off">
+                <input class="w3-button" type="button" name="join" id="join" value="Ready to Chat"style="margin-top: 10px;">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+ <!--Placeholder Textfeld Links eventuell mal verschiedene Chaträume-->
+
+    <div class="row" >
+    <div class="col-md-3">
+        <form id="new-room-form" action="javascript:">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="for Future improvements" id="new-room-name">
+          </div>
+        </form>
+ 
+        <ul class="list-group" id="rooms">
+ 
+        </ul>
+    </div>
+
+<!--Senden Formular mit File Uploader-->
+
+    <div class="col-md-6">
+          <form action="" id="sendform">
+            <div class="form-group" id="userinput">
+              <input type="text" class="form-control" id="m"  autocomplete="off" placeholder="Start typing.. Press Enter to send.. @username for private message. " style="margin-bottom: 10px;">
+              <button class="w3-button" id="send">Send</button>
+              <input type="file" id="uploadfile" accept="audio/*, video/*, image/*">
+              <button class="w3-button" id="filebutton">filebutton</button>
+            </div>
+          </form>
+
+<!--das Message Feld scrollbar-->   
+
+      <ul class="list-group" id="messages" style="overflow-y: scroll;height: 400px;background-color:rgb(255, 255, 255)">
+
+      </ul>
+    </div>
+
+
+    
+    <div class="col-md-3">
+      <ul class="list-group" id="people" style=" background-color:rgb(255, 255, 255);text-align: center;"></ul>
+      </ul>
+    </div>
+
+  </div>
+  </div>
+  </div>
+
+  <script src="../socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="client.js"></script>
+</body>
+
+</html>

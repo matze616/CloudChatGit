@@ -1,0 +1,104 @@
+*{
+    overflow: hidden;
+}
+/** {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font: 13px Helvetica, Arial;
+}
+#chat {
+    height:90%;
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 5%;
+}
+#people {
+    float: right;
+    background: rgb(247, 247, 247);
+    width: 8%;
+    margin-left: 1%;
+    margin-top: 1%;
+}
+#people li {
+    padding: 5px 10px;
+}
+#messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    float: left;
+    width: 90%
+}
+#messages li {
+    padding: 5px 10px;
+}
+
+
+#own {
+    background: rgb(177, 255, 113);
+    text-align: left
+}
+#incoming {
+    background: rgb(86, 201, 255);
+    text-align: right
+}
+form {
+    background: rgb(179, 179, 179);
+    padding: 3px;
+    bottom: 0;
+    width: 90%;
+}
+form input {
+    border: 0;
+    padding: 10px;
+    width: 90%;
+}
+form button {
+    width: 9%;
+    background: rgb(130, 224, 255);
+    border: none;
+    padding: 10px;
+}
+#login{
+    margin-top: 25%;
+}
+body {
+    background-color: #CCC;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+#chat {
+    margin-top: 25%;
+    width: 50%;
+    height: 50%;
+    max-width: 800px;
+    max-height: 800px;
+    overflow: scroll;
+}
+#message-chatwindow div {
+    background-color: #CCC;
+    padding: 5px;
+}
+#message-container div:nth-child(2n) {
+    background-color: #FFF;
+}
+#send {
+    position: fixed;
+    padding-bottom: 30px;
+    bottom: 0;
+    background-color: white;
+    max-width: 800px;
+    width: 50%;
+    display: flex;
+}
+#m {
+    max-width: 800px;
+    width: 50%;
+    flex-grow: 1;
+}
+*/
