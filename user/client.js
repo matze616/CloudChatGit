@@ -3,7 +3,6 @@
 $(function () {
     var name = ''
     var socket = io();
-    //var ctx = document.getElementById('canvas').getContext('2d');
     $('#chat').hide();
     $('#userinput').hide();
     $('#name').focus();
@@ -12,9 +11,8 @@ $(function () {
         e.preventDefault(); //prevents page reloading
         if($('#m').val().length > 0){
             socket.emit('chat message', $('#m').val());
-            $('#messages').append('<span id="own" class="w3-animate-bottom w3-border" style="text-align: left;background-color:rgb(187, 255, 160)"><Strong>'+ name + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br>' + $('#m').val() + '<br>' + '</span><span class="date"></span>');
-            //$('#messages').append($('<li id="own" class="w3-animate-bottom w3-border" style="text-align: left;background-color:rgb(187, 255, 160);font-size: 10px">').text(getTimestamp() + ' ' + name + ' says: \n' + $('#m').val()));
-            //$('#messages').append($('<p id="own" class="w3-animate-bottom w3-border">').text(getTimestamp() + ' ' + name + ' says: ' + $('#m').val()));
+            $('#messages').append('<span id="own" style="text-align: left;background-color:rgb(187, 255, 160)"><Strong>'+ name + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br>' + $('#m').val() + '<br>' + '</span><span class="date"></span>');
+            $('#messages').scrollTop($('#messages')[0].scrollHeight);
             $('#m').val('');
             $('#m').focus();
             return false;
@@ -27,22 +25,16 @@ $(function () {
     $('#filebutton').click(function (e) {
         e.preventDefault();
         let blob = new Blob($('#uploadfile').prop('files'), {type: ($('#uploadfile'))[0].files[0].type});
-        //console.log(($('#uploadfile'))[0].files[0]);
         var filename = ($('#uploadfile'))[0].files[0].name;
         let reader = new FileReader();
         reader.readAsDataURL(blob);
         reader.onload = function () {
             socket.emit('file upload', reader.result, filename);
         }
-        /*
-    fs.readFile(__dirname + '/images/image.jpg', function (err, buf) {
-        socket.emit('image', {image: true, buffer: buf.toString('base64')});
-        console.log('image file is initialized');
     });
-    */
-    })
 
-    $('#join').click(function () {
+    $('#join').click(function (e) {
+        e.preventDefault();
         var name = $('#name').val();
         if (name == ''){
             alert('Name cannot be empty!')
@@ -50,17 +42,6 @@ $(function () {
             socket.emit('CheckName', name);
         }
     });
-
-    /*
-    socket.on('image', function (info) {
-        if (info.image) {
-            var img = new Image();
-            console.log(info.buffer)
-            img.src = 'data:image/jpeg;base64,' + info.buffer;
-            ctx.drawImage(img, 0,0)
-        }
-    })
-    */
 
     socket.on('NameAlreadyInUse', function () {
         alert('Name is already in use');
@@ -77,6 +58,7 @@ $(function () {
 
     socket.on('update', function (msg) {
         $('#messages').append($('<li>').text(msg));
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
 
     socket.on('update-people',function (people) {
@@ -86,26 +68,16 @@ $(function () {
             $('#people').append("<li>" + name + "</li>");
         });
     });
-/*
-    socket.on('update-people', function (people) {
-        console.log('update-people');
-        $('#people').empty();
-        $.each(people, function (clientid, name) {
-            $(#people).append('<li>' + name + '</li>')
-        });
-    });
-*/
+
     socket.on('chat message', function (people, msg, date) {
-        $('#messages').append('<span id="incoming" class="w3-animate-bottom w3-border"style="text-align: right;background-color:rgb(91, 222, 255)"> <Strong>'+ people + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br> ' + msg + '<br>' + '</span><span class="date"></span>');
-       
-        //$('#messages').append($('<li id="incoming" class="w3-animate-bottom w3-border" style="text-align: right;background-color:rgb(0, 204, 255);font-size: 10px">').text(date + ' ' + people + ' says: ' + msg));
-        //$('#messages').append($('<p id="own" class="w3-animate-bottom w3-border">').text(getTimestamp() + ' ' + name + ' says: ' + $('#m').val()));
+        $('#messages').append('<span id="incoming" style="text-align: right;background-color:rgb(91, 222, 255)"> <Strong>'+ people + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br> ' + msg + '<br>' + '</span><span class="date"></span>');
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
     });
     
     socket.on('file sent', function (data, uploadid, sender, filename) {
-        //<li><a download="test.jpg" href='#' id="testlink">test</a></li>
         var msg = '<a download="' + filename + '" href='+ data +' id="upload' + uploadid + ' ">' + filename + '</a>'
         $('#messages').append('<span id="incoming" class="w3-animate-bottom w3-border"style="text-align: center;background-color:rgb(91, 222, 255)"> <Strong>'+ sender + '</strong>: <i style="font-size: 10px"> Sent you a file on: ' + getTimestamp() + ' </i><br> ' + msg + '<br>' + '</span><span class="date"></span>');
+        $('#messages').scrollTop($('#messages')[0].scrollHeight);
     })
 });
 

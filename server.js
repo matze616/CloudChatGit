@@ -25,19 +25,20 @@ io.on('connection', function (socket) {
         if (msg.charAt(0) == '@'){
             var index = 0;
             /*
-            Split: @Username blblablaba -> ['@Username','blblablaba']
-            Slice: @Username -> Username
+            Split + Slice: @Username@Username@Username blblablaba -> ['Username@Username@Username','blblablaba']
+            Split: Username@Username@Username -> ['Username','Username','Username']
             */
             var recepientString = (msg.split(' ')[0]).slice(1);
             var recepients = recepientString.split('@');
             var keys = Object.keys(people);
             var values = Object.values(people);
             recepients.forEach(function (recepient) {
-                var RecepientIndex = values.indexOf(recepient);
-                io.to(keys[RecepientIndex]).emit('chat message', people[socket.id], msg.trim(), date)
+                if(values.includes(recepient)){
+                    var RecepientIndex = values.indexOf(recepient);
+                    io.to(keys[RecepientIndex]).emit('chat message', people[socket.id], msg.trim(), date)
+                }
             })
         } else {
-            //io.sockets.emit('chat message', people[socket.id], msg, date);
             socket.broadcast.emit('chat message', people[socket.id], msg.trim(), date);
         }
     });
@@ -51,30 +52,17 @@ io.on('connection', function (socket) {
 
     socket.on('CheckName', function (name) {
         var usednames = Object.values(people);
-        if (usednames.includes(name)){
+        if (usednames.includes(name.trim())){
             io.to(socket.id).emit('NameAlreadyInUse');
         } else {
-            io.to(socket.id).emit('NameOK', name);
+            io.to(socket.id).emit('NameOK', name.trim());
         }
     })
     
     socket.on('file upload', function (data, filename) {
-        //<li><a download="test.jpg" href='#' id="testlink">test</a></li>
         io.sockets.emit('file sent', data, uploadid, people[socket.id], filename);
         uploadid++;
     })
-
-    /*
-    //Disconnect message
-    socket.on('disconnect', function () {
-        console.log('user disconnected')
-    });
-
-    //sending of chat message to all sockets
-    socket.on('chat message', function (msg) {
-        io.emit('chat message', msg);
-    });
-     */
 });
 
 function getTimestamp(){
