@@ -8,8 +8,10 @@ var people = {};
 app.use(express.static(__dirname + '/user'));
 
 io.on('connection', function (socket) {
+    //uploadid for file uploading
     uploadid = 0;
-    //Connection message
+
+    //Connection message of a socket, sending out all update messages
     socket.on('join', function (name) {
         people[socket.id] = name;
         console.log(name + ' connected to the server');
@@ -18,7 +20,7 @@ io.on('connection', function (socket) {
         io.sockets.emit('update-people', people);
     });
 
-    //send
+    //sending chat message
     socket.on('chat message', function (msg) {
 
         var date = getTimestamp();
@@ -43,13 +45,14 @@ io.on('connection', function (socket) {
         }
     });
 
-    //disconnect
+    //disconnection message, updating the people array
     socket.on('disconnect', function () {
         io.sockets.emit('update', people[socket.id] + ' has left the server');
         delete people[socket.id];
         io.sockets.emit('update-people', people)
     });
 
+    //checks if the name the user has chosen is already in use
     socket.on('CheckName', function (name) {
         var usednames = Object.values(people);
         if (usednames.includes(name.trim())){
@@ -57,14 +60,16 @@ io.on('connection', function (socket) {
         } else {
             io.to(socket.id).emit('NameOK', name.trim());
         }
-    })
-    
+    });
+
+    //sends the data from the sending sockets to all other connected sockets
     socket.on('file upload', function (data, filename) {
         io.sockets.emit('file sent', data, uploadid, people[socket.id], filename);
         uploadid++;
-    })
+    });
 });
 
+//generates a timestamp in the format dd.mm.yyyy hr:mi:ss
 function getTimestamp(){
     var today = new Date();
     if ((String(today.getDate()).length) == 1) {
@@ -106,5 +111,6 @@ http.listen(3000, function () {
 
 /*
 Sequence Diagram:
-https://sequencediagram.org/index.html#initialData=C4S2BsFMAIGVII4FdIDsDGMAiICGBzAJ1wFs4QSAHKaAYQAtdgAoW8ENYARgFoA+eIQBukQgC469SOgDWAOVKRmgkYX5sOqbhIUlIAeQDSrdp14DRqiQCkA9iFTLLo9aa0AmCUkoATJpAAaaG8-YEgeSkhbaiUVFz4NTgBmL19-IJD-CKiY5lRbMOhbVTo3biDErRSAWUgAZzqCGEpCW0wGk01ufjjxaHRGYGg9BqanYXjK4E9+weH6xvxY5zUEspTZpnnRpc6zHpWJAHd6EDrIwm3F5YnVqY2Ts4urpqA
+- Sending: https://sequencediagram.org/index.html#initialData=C4S2BsFMAIFlIM4IIYHNIHoBiIrQMqQB2AJiEagFADC4IxwAjALQB8hATgG6QcBc0AMYALZMGgBbRCnQAaaADNcMAK4AHcAHtkJSpx4c2tekWAAmASLGTpaSPKV4EDPbwNG6DAMyXR4qUh2NJ6mLOxuvAIA7sIgCGq8NoHorty8HibAPtAxcQkcSTKQQA
+- Login: https://sequencediagram.org/index.html#initialData=C4S2BsFMAIBkHsDmIB20AKAneBjSBnfAKAGFwRIVgBGAWgD4BlSTANxYC5oSALSHANYA5AIYBbSEWZsWDMhSrUuoiQHkA0qXKUaDae0xcAUvFRSWBudqoAmLgFcADgBMRwSABpoT1+9qPIeEcocxlMKwVgAGYHFzdPbzi-AKCoIA
  */
