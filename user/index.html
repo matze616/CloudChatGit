@@ -40,8 +40,8 @@
 
  <!--Placeholder Textfeld Links eventuell mal verschiedene Chaträume-->
 
-    <div class="row" >
-    <div class="col-md-3">
+    <div class="row">
+    <div class="col-md-3"  id="leftcol">
         <form id="new-room-form" action="javascript:">
           <div class="form-group">
             <input type="text" class="form-control" placeholder="for Future improvements" id="new-room-name">
@@ -59,9 +59,9 @@
           <form action="" id="sendform">
             <div class="form-group" id="userinput">
               <input type="text" class="form-control" id="m"  autocomplete="off" placeholder="Start typing.. Press Enter to send.. @username for private message. " style="margin-bottom: 10px;">
-              <button id="send">Send</button>
+              <button id="send">Send Message</button>
               <input type="file" id="uploadfile" accept="audio/*, video/*, image/*">
-              <button id="filebutton">filebutton</button>
+              <button id="filebutton">Send File</button>
             </div>
           </form>
 
@@ -86,6 +86,7 @@
   <script src="../socket.io/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script src="client.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </body>
 
 </html>

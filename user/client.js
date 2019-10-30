@@ -17,7 +17,11 @@ $(function () {
             $('#m').focus();
             return false;
         } else {
-            alert('Don\'t send empty messages!' );
+            //alert('Don\'t send empty messages!' );
+            $('<div class="alert alert-warning alert-dismissible">\n' +
+                '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+                '    <strong>Don\'t send empty messages!</strong>\n' +
+                '  </div>').appendTo('#leftcol')
         }
 
     });
@@ -37,7 +41,10 @@ $(function () {
         e.preventDefault();
         var name = $('#name').val();
         if (name == ''){
-            alert('Name cannot be empty!')
+            $('<div class="alert alert-warning alert-dismissible">\n' +
+                '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+                '    <strong>Name can\'t be empty!</strong>\n' +
+                '  </div>').appendTo('#login')
         } else {
             socket.emit('CheckName', name);
         }
@@ -76,7 +83,7 @@ $(function () {
     
     socket.on('file sent', function (data, uploadid, sender, filename) {
         var msg = '<a download="' + filename + '" href='+ data +' id="upload' + uploadid + ' ">' + filename + '</a>'
-        $('#messages').append('<span id="incoming" class="w3-animate-bottom w3-border"style="text-align: center;background-color:rgb(91, 222, 255)"> <Strong>'+ sender + '</strong>: <i style="font-size: 10px"> Sent you a file on: ' + getTimestamp() + ' </i><br> ' + msg + '<br>' + '</span><span class="date"></span>');
+        $('#messages').append('<span id="incoming" style="text-align: center;background-color:rgb(229, 231, 255)"> <Strong>'+ sender + '</strong>: <i style="font-size: 10px"> Sent you a file on: ' + getTimestamp() + ' </i><br> ' + msg + '<br>' + '</span><span class="date"></span>');
         $('#messages').scrollTop($('#messages')[0].scrollHeight);
     })
 });
