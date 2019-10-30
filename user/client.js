@@ -1,3 +1,6 @@
+//Socket.IO Chat 
+//Version 0.0.1
+//Author: Matthias Schülein (751450), Philipp Kriegeskorte (761341)
 
 
 $(function () {
