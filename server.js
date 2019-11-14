@@ -10,6 +10,7 @@ var io = require('socket.io')(http);
 var uploadid;
 var people = {};
 
+
 app.use(express.static(__dirname + '/user'));
 
 io.on('connection', function (socket) {
@@ -110,8 +111,8 @@ function getTimestamp(){
     return (dd + '.' + mm + '.' + yyyy + ' ' + hr + ':' + mi + ':' + ss);
 }
 
-http.listen(3000, function () {
-    console.log('listening on *:3000')
+http.listen(8080, function () {
+    console.log('listening on *:3000');
 });
 
 /*
