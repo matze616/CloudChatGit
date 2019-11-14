@@ -45,10 +45,10 @@ $(function () {
     $('#join').click(function (e) {
         e.preventDefault();
         var name = $('#name').val();
-        if (name == ''){
+        if ((name == '') || (name.includes(' '))){
             $('<div class="alert alert-warning alert-dismissible">\n' +
                 '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
-                '    <strong>Name can\'t be empty!</strong>\n' +
+                '    <strong>Name can\'t be empty or contain whitespace!</strong>\n' +
                 '  </div>').appendTo('#login')
         } else {
             socket.emit('CheckName', name);
@@ -57,7 +57,10 @@ $(function () {
 
     //Message that the name the user chose is already in use
     socket.on('NameAlreadyInUse', function () {
-        alert('Name is already in use');
+        $('<div class="alert alert-warning alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>Name is already in use!</strong>\n' +
+            '  </div>').appendTo('#login')
     });
 
     //Message that the name of the user is not in use and can join
@@ -81,7 +84,7 @@ $(function () {
         $("#people").empty();
         $('#people').append('<h3>Users Connected:</h3></li>');
         $.each(people, function(clientid, name) {
-            $('#people').append("<li>" + name + "</li>");
+            $('#people').append($('<li>').text(name));
         });
     });
 
