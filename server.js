@@ -41,11 +41,9 @@ io.on('connection', function (socket) {
 
                 Http.onreadystatechange=function(){
                     if(this.readyState==4 && this.status==200){
-                        result = JSON.parse(Http.responseText)
+                        result = JSON.parse(Http.responseText);
                         console.log(result.translations);
                         resolve(result.translations);
-                    } else {
-                        resolve(msg)
                     }
                 };
             }
@@ -73,7 +71,7 @@ io.on('connection', function (socket) {
                 console.log(translatedmsg);
                 socket.broadcast.emit('chat message', people[socket.id], va1.trim(), date);
             }
-            })
+        })
     });
 
     //disconnection message, updating the people array
