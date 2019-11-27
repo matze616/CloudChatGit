@@ -4,6 +4,7 @@
 
 
 var express = require('express');
+var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
@@ -29,26 +30,48 @@ io.on('connection', function (socket) {
     //sending chat message
     socket.on('chat message', function (msg) {
 
-        var date = getTimestamp();
-        if (msg.charAt(0) == '@'){
-            var index = 0;
-            /*
-            Split + Slice: @Username@Username@Username blblablaba -> ['Username@Username@Username','blblablaba']
-            Split: Username@Username@Username -> ['Username','Username','Username']
-            */
-            var recepientString = (msg.split(' ')[0]).slice(1);
-            var recepients = recepientString.split('@');
-            var keys = Object.keys(people);
-            var values = Object.values(people);
-            recepients.forEach(function (recepient) {
-                if(values.includes(recepient)){
-                    var RecepientIndex = values.indexOf(recepient);
-                    io.to(keys[RecepientIndex]).emit('chat message', people[socket.id], msg.trim(), date)
-                }
-            })
-        } else {
-            socket.broadcast.emit('chat message', people[socket.id], msg.trim(), date);
-        }
+        const translatedmsg = new Promise(
+
+            function (resolve, reject) {
+                var result;
+                const Http = new XMLHttpRequest();
+                const url = 'https://eu-de.functions.cloud.ibm.com/api/v1/web/cb82dc99-bde9-4300-900d-ca3e8a0d53f6/hrt-demo/identify-and-translate/?text=' + msg;
+                Http.open("GET", url);
+                Http.send();
+
+                Http.onreadystatechange=function(){
+                    if(this.readyState==4 && this.status==200){
+                        result = JSON.parse(Http.responseText);
+                        console.log(result.translations);
+                        resolve(result.translations);
+                    }
+                };
+            }
+        );
+
+        translatedmsg.then(function (va1) {
+            var date = getTimestamp();
+            if (va1.charAt(0) === '@'){
+                var index = 0;
+                /*
+                Split + Slice: @Username@Username@Username blblablaba -> ['Username@Username@Username','blblablaba']
+                Split: Username@Username@Username -> ['Username','Username','Username']
+                */
+                var recepientString = (va1.split(' ')[0]).slice(1);
+                var recepients = recepientString.split('@');
+                var keys = Object.keys(people);
+                var values = Object.values(people);
+                recepients.forEach(function (recepient) {
+                    if(values.includes(recepient)){
+                        var RecepientIndex = values.indexOf(recepient);
+                        io.to(keys[RecepientIndex]).emit('chat message', people[socket.id], va1.trim(), date)
+                    }
+                })
+            } else {
+                console.log(translatedmsg);
+                socket.broadcast.emit('chat message', people[socket.id], va1.trim(), date);
+            }
+        })
     });
 
     //disconnection message, updating the people array
