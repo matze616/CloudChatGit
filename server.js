@@ -9,7 +9,31 @@ var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var uploadid;
+var accesstoken
 var people = {};
+
+//Get the access token for the DB2 database
+const GetAccessToken = new Promise(
+    function (resolve, reject) {
+        var result;
+        const Http = new XMLHttpRequest();
+        const url = 'https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/auth/tokens';
+        var body = JSON.stringify({ "userid": "nqx39539", "password": "j6665@x0vzsk7wgt"});
+        Http.open("POST", url);
+        Http.send(body);
+        Http.onreadystatechange=function(){
+            if(this.readyState==4 && this.status==200){
+                result = JSON.parse(Http.responseText);
+                resolve(result);
+            }
+        };
+
+    }).catch(err => {
+    console.log("error: ", err);
+});
+GetAccessToken.then(function (answer) {
+    accesstoken = answer.token;
+});
 
 
 app.use(express.static(__dirname + '/user'));
@@ -22,7 +46,6 @@ io.on('connection', function (socket) {
     socket.on('join', function (name) {
         people[socket.id] = name;
         console.log(name + ' connected to the server');
-        //io.emit('update', 'You have connected to the server');
         io.sockets.emit('update', name + ' has joined the server');
         io.sockets.emit('update-people', people);
     });
@@ -82,13 +105,67 @@ io.on('connection', function (socket) {
     });
 
     //checks if the name the user has chosen is already in use
-    socket.on('CheckName', function (name) {
-        var usednames = Object.values(people);
-        if (usednames.includes(name.trim())){
-            io.to(socket.id).emit('NameAlreadyInUse');
-        } else {
-            io.to(socket.id).emit('NameOK', name.trim());
-        }
+    socket.on('CheckName', function (name, password) {
+        //Get all informations from the database and check if the username exists and the password is correct
+        var SQLRun;
+        var body = JSON.stringify({ "commands": "SELECT * FROM USERINFORMATION;",
+            "limit": "10",
+            "separator" : ";",
+            "stop_on_error" : "no"});
+        var xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+        xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === 4) {
+                SQLRun = JSON.parse(this.responseText);
+                var rows;
+                var usernamelist = [];
+                var passwords = [];
+                var xhr2 = new XMLHttpRequest();
+                xhr2.withCredentials = true;
+                xhr2.addEventListener("readystatechange", function () {
+                    if (this.readyState === 4){
+                        rows = JSON.parse(this.responseText);
+                        for(i = 0; i < rows.results[0].rows.length; i++){
+                            usernamelist.push(rows.results[0].rows[i][0]);
+                            passwords.push(rows.results[0].rows[i][1]);
+                        }
+                        console.log(usernamelist);
+                        console.log(passwords);
+                        if (usernamelist.includes(name.trim()) && (usernamelist.indexOf(name) === passwords.indexOf(password))){
+                            io.to(socket.id).emit('NameOK', name.trim());
+                        } else if (usernamelist.includes(name.trim())){
+                            io.to(socket.id).emit('WrongPassword');
+                        } else {
+                            var body3 = JSON.stringify({ "commands": "INSERT INTO USERINFORMATION VALUES (\'" + name.trim() + "\',\'"+ password + "\');",
+                                "limit": "10",
+                                "separator" : ";",
+                                "stop_on_error" : "no"});
+                            var xhr3 = new XMLHttpRequest();
+                            xhr3.withCredentials = true;
+                            xhr3.addEventListener('readystatechange', function () {
+                                if (this.readyState === 4){
+                                    console.log(this.responseText);
+                                    io.to(socket.id).emit('NameOK', name.trim());
+                                }
+                            });
+                            xhr3.open("POST", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs");
+                            xhr3.setRequestHeader("Content-Type", "application/json");
+                            xhr3.setRequestHeader("Authorization", "Bearer " + accesstoken);
+                            xhr3.send(body3);
+                        }
+                    }
+                });
+                xhr2.open("GET", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs/" + SQLRun.id);
+                xhr2.setRequestHeader("Content-Type", "application/json");
+                xhr2.setRequestHeader("Authorization", "Bearer " + accesstoken);
+                xhr2.send();
+
+            }
+        });
+        xhr.open("POST", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Authorization", "Bearer " + accesstoken);
+        xhr.send(body);
     });
 
     //sends the data from the sending sockets to all other connected sockets
