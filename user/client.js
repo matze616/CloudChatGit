@@ -56,7 +56,23 @@ $(function () {
         }
     });
 
-    //Message that the name the user chose is already in use or he typed in the wrong password
+    //Message that the chosen username is already connected to the chat
+    socket.on('AlreadyConnected', function () {
+        $('<div class="alert alert-warning alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>User is already connected!</strong>\n' +
+            '  </div>').appendTo('#login')
+    });
+
+    //Message that the chosen username or password is too long
+    socket.on('NamePasswordTooLong', function () {
+        $('<div class="alert alert-warning alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>Username or password is too long! (max. 20 characters)</strong>\n' +
+            '  </div>').appendTo('#login')
+    });
+
+    //Message that the name the user chose is already in use in the database or typed in the wrong password
     socket.on('WrongPassword', function () {
         $('<div class="alert alert-warning alert-dismissible">\n' +
             '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
