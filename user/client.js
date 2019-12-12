@@ -1,4 +1,4 @@
-//Socket.IO Chat 
+//Socket.IO Chat
 //Version 0.0.1
 //Author: Matthias Schülein (751450), Philipp Kriegeskorte (761341)
 
@@ -45,21 +45,38 @@ $(function () {
     $('#join').click(function (e) {
         e.preventDefault();
         var name = $('#name').val();
+        var password = $('#password').val();
         if ((name == '') || (name.includes(' '))){
             $('<div class="alert alert-warning alert-dismissible">\n' +
                 '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
                 '    <strong>Name can\'t be empty or contain whitespace!</strong>\n' +
                 '  </div>').appendTo('#login')
         } else {
-            socket.emit('CheckName', name);
+            socket.emit('CheckName', name, password);
         }
     });
 
-    //Message that the name the user chose is already in use
-    socket.on('NameAlreadyInUse', function () {
+    //Message that the chosen username is already connected to the chat
+    socket.on('AlreadyConnected', function () {
         $('<div class="alert alert-warning alert-dismissible">\n' +
             '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
-            '    <strong>Name is already in use!</strong>\n' +
+            '    <strong>User is already connected!</strong>\n' +
+            '  </div>').appendTo('#login')
+    });
+
+    //Message that the chosen username or password is too long
+    socket.on('NamePasswordTooLong', function () {
+        $('<div class="alert alert-warning alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>Username or password is too long! (max. 20 characters)</strong>\n' +
+            '  </div>').appendTo('#login')
+    });
+
+    //Message that the name the user chose is already in use in the database or typed in the wrong password
+    socket.on('WrongPassword', function () {
+        $('<div class="alert alert-warning alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>Name is already in use! Or forgot your password?</strong>\n' +
             '  </div>').appendTo('#login')
     });
 
