@@ -56,6 +56,18 @@ $(function () {
         }
     });
 
+    //function for the click on the button to upload the profile picture
+    $('#profilebutton').click(function (e) {
+        let blob = new Blob($('#profilepicture').prop('files'), {type: ($('#profilepicture'))[0].files[0].type});
+        //var filename = ($('#profilepicture'))[0].files[0].name;
+        let reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onload = function () {
+            console.log("OnloadClient")
+            socket.emit('profile picture upload', reader.result);
+        }
+    });
+
     //Message that the chosen username is already connected to the chat
     socket.on('AlreadyConnected', function () {
         $('<div class="alert alert-warning alert-dismissible">\n' +
@@ -116,6 +128,14 @@ $(function () {
         var msg = '<a download="' + filename + '" href='+ data +' id="upload' + uploadid + ' ">' + filename + '</a>'
         $('#messages').append('<span id="incoming" style="text-align: center;background-color:rgb(229, 231, 255)"> <Strong>'+ sender + '</strong>: <i style="font-size: 10px"> Sent you a file on: ' + getTimestamp() + ' </i><br> ' + msg + '<br>' + '</span><span class="date"></span>');
         $('#messages').scrollTop($('#messages')[0].scrollHeight);
+    });
+
+    socket.on('ContainsFace', function () {
+        alert("ContainsFace");
+    });
+
+    socket.on('NoFace', function () {
+        alert("NoFace");
     })
 });
 

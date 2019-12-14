@@ -5,12 +5,18 @@
 
 var express = require('express');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
+var fs = require('fs');
 var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var uploadid;
-var accesstoken
+var accesstoken;
 var people = {};
+var visualRecognition = new VisualRecognitionV3({
+    version: '2018-03-19',
+    iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
+});
 
 //Get the access token for the DB2 database
 const GetAccessToken = new Promise(
@@ -34,7 +40,6 @@ const GetAccessToken = new Promise(
 GetAccessToken.then(function (answer) {
     accesstoken = answer.token;
 });
-
 
 app.use(express.static(__dirname + '/user'));
 
@@ -184,7 +189,50 @@ io.on('connection', function (socket) {
         io.sockets.emit('file sent', data, uploadid, people[socket.id], filename);
         uploadid++;
     });
+
+    socket.on('profile picture upload', function (data) {
+        var socketid = socket.id;
+        var base64data = data.split('base64,')[1];
+        //let buff = new Buffer(base64data, 'base64');
+        let buff = Buffer.from(base64data, 'base64');
+        fs.writeFileSync('Test.jpg', buff);
+        VerifyProfilePicture(socketid);
+    });
 });
+
+function VerifyProfilePicture(socketid) {
+    var imageFile = fs.createReadStream('./Test.jpg');
+    var classifier_ids = ["default"];
+    var threshold = 0.4;
+    var classifierArray = [];
+    var sortedClassifiers = [];
+
+    var params = {
+        images_file: imageFile,
+        classifier_ids: classifier_ids,
+        threshold: threshold
+    };
+
+    visualRecognition.classify(params, function (err, response) {
+        if (err){
+            console.log(err);
+        } else {
+            //console.log("response: " + response);
+            classifierArray = response.images[0].classifiers[0].classes;
+            //console.log("classifierArray: " + classifierArray);
+            var ArrayLength = classifierArray.length;
+            for(var i = 0; i < ArrayLength; i++){
+                sortedClassifiers.push(classifierArray[i].class);
+            }
+            //console.log(sortedClassifiers);
+            if(sortedClassifiers.includes('face')){
+                io.to(socketid).emit('ContainsFace');
+            } else {
+                io.to(socketid).emit('NoFace');
+            }
+        }
+    });
+}
 
 //generates a timestamp in the format dd.mm.yyyy hr:mi:ss
 function getTimestamp(){
