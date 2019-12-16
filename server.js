@@ -5,12 +5,19 @@
 
 var express = require('express');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
+var fs = require('fs');
 var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var uploadid;
 var accesstoken;
 var people = {};
+var profilepictures = {};
+var visualRecognition = new VisualRecognitionV3({
+    version: '2018-03-19',
+    iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
+});
 
 const GetAccessToken = new Promise(
     function (resolve, reject) {
@@ -46,7 +53,7 @@ io.on('connection', function (socket) {
         console.log(name + ' connected to the server');
         //io.emit('update', 'You have connected to the server');
         io.sockets.emit('update', name + ' has joined the server');
-        io.sockets.emit('update-people', people);
+        io.sockets.emit('update-people', people, profilepictures);
     });
 
     //sending chat message
@@ -100,7 +107,7 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         io.sockets.emit('update', people[socket.id] + ' has left the server');
         delete people[socket.id];
-        io.sockets.emit('update-people', people)
+        io.sockets.emit('update-people', people, profilepictures)
     });
 
     //checks if the name the user has chosen is already in use
@@ -183,7 +190,50 @@ io.on('connection', function (socket) {
         io.sockets.emit('file sent', data, uploadid, people[socket.id], filename);
         uploadid++;
     });
+
+    socket.on('profile picture upload', function (data, filetype) {
+        var type = filetype.split('/')[1];
+        var base64data = data.split('base64,')[1];
+        let buff = Buffer.from(base64data, 'base64');
+        fs.writeFileSync('Verification.' + type, buff);
+        VerifyProfilePicture(socket.id, type, data);
+    })
 });
+
+function VerifyProfilePicture(socketid, type, data) {
+    var imageFile = fs.createReadStream('./Verification.' + type);
+    var classifier_ids = ["default"];
+    var threshold = 0.4;
+    var classifierArray = [];
+    var sortedClassifiers = [];
+
+    var params = {
+        images_file: imageFile,
+        classifier_ids: classifier_ids,
+        threshold: threshold
+    };
+
+    visualRecognition.classify(params, function (err, response) {
+        if (err){
+            console.log(err);
+        } else {
+            //console.log("response: " + response);
+            classifierArray = response.images[0].classifiers[0].classes;
+            //console.log("classifierArray: " + classifierArray);
+            var ArrayLength = classifierArray.length;
+            for(var i = 0; i < ArrayLength; i++){
+                sortedClassifiers.push(classifierArray[i].class);
+            }
+            //console.log(sortedClassifiers);
+            if(sortedClassifiers.includes('face')){
+                profilepictures[socketid] = data;
+                io.to(socketid).emit('ContainsFace');
+            } else {
+                io.to(socketid).emit('NoFace');
+            }
+        }
+    });
+}
 
 //generates a timestamp in the format dd.mm.yyyy hr:mi:ss
 function getTimestamp(){
