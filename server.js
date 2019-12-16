@@ -13,6 +13,7 @@ var io = require('socket.io')(http);
 var uploadid;
 var accesstoken;
 var people = {};
+var profilepictures = {};
 var visualRecognition = new VisualRecognitionV3({
     version: '2018-03-19',
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
@@ -52,7 +53,7 @@ io.on('connection', function (socket) {
         people[socket.id] = name;
         console.log(name + ' connected to the server');
         io.sockets.emit('update', name + ' has joined the server');
-        io.sockets.emit('update-people', people);
+        io.sockets.emit('update-people', people, profilepictures);
     });
 
     //sending chat message
@@ -106,7 +107,7 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         io.sockets.emit('update', people[socket.id] + ' has left the server');
         delete people[socket.id];
-        io.sockets.emit('update-people', people)
+        io.sockets.emit('update-people', people, profilepictures)
     });
 
     //checks if the name the user has chosen is already in use
@@ -142,8 +143,6 @@ io.on('connection', function (socket) {
                                 usernamelist.push(rows.results[0].rows[i][0]);
                                 passwords.push(rows.results[0].rows[i][1]);
                             }
-                            console.log(usernamelist);
-                            console.log(passwords);
                             if (usernamelist.includes(name.trim()) && (usernamelist.indexOf(name) === passwords.indexOf(password))) {
                                 io.to(socket.id).emit('NameOK', name.trim());
                             } else if (usernamelist.includes(name.trim())) {
@@ -159,7 +158,6 @@ io.on('connection', function (socket) {
                                 xhr3.withCredentials = true;
                                 xhr3.addEventListener('readystatechange', function () {
                                     if (this.readyState === 4) {
-                                        console.log(this.responseText);
                                         io.to(socket.id).emit('NameOK', name.trim());
                                     }
                                 });
@@ -190,18 +188,18 @@ io.on('connection', function (socket) {
         uploadid++;
     });
 
-    socket.on('profile picture upload', function (data) {
-        var socketid = socket.id;
+    socket.on('profile picture upload', function (data, filetype) {
         var base64data = data.split('base64,')[1];
-        //let buff = new Buffer(base64data, 'base64');
+        var type = filetype.split('/')[1];
+        console.log(type);
         let buff = Buffer.from(base64data, 'base64');
-        fs.writeFileSync('Test.jpg', buff);
-        VerifyProfilePicture(socketid);
+        fs.writeFileSync('Verification.' + type, buff);
+        VerifyProfilePicture(socket.id, type, data);
     });
 });
 
-function VerifyProfilePicture(socketid) {
-    var imageFile = fs.createReadStream('./Test.jpg');
+function VerifyProfilePicture(socketid, type, data) {
+    var imageFile = fs.createReadStream('./Verification.' + type);
     var classifier_ids = ["default"];
     var threshold = 0.4;
     var classifierArray = [];
@@ -226,6 +224,7 @@ function VerifyProfilePicture(socketid) {
             }
             //console.log(sortedClassifiers);
             if(sortedClassifiers.includes('face')){
+                profilepictures[socketid] = data;
                 io.to(socketid).emit('ContainsFace');
             } else {
                 io.to(socketid).emit('NoFace');

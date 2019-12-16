@@ -6,6 +6,7 @@
 $(function () {
     var name = ''
     var socket = io();
+    var profilepicture = '';
     $('#chat').hide();
     $('#userinput').hide();
     $('#name').focus();
@@ -13,7 +14,8 @@ $(function () {
     //function for the click on the "send message" button
     $('#send').click(function (e) {
         e.preventDefault(); //prevents page reloading
-        if($('#m').val().length > 0){
+        var msg = $('#m').val().trim();
+        if(msg > 0){
             socket.emit('chat message', $('#m').val());
             $('#messages').append('<span id="own" style="text-align: left;background-color:rgb(187, 255, 160)"><Strong>'+ name + '</strong>: <i style="font-size: 10px"> Sent on: ' + getTimestamp() + ' </i><br>' + $('#m').val() + '<br>' + '</span><span class="date"></span>');
             $('#messages').scrollTop($('#messages')[0].scrollHeight);
@@ -47,55 +49,76 @@ $(function () {
         var name = $('#name').val();
         var password =$('#password').val();
         if ((name == '') || (name.includes(' '))){
+            $('#alerts').empty();
             $('<div class="alert alert-warning alert-dismissible">\n' +
                 '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
                 '    <strong>Name can\'t be empty or contain whitespace!</strong>\n' +
-                '  </div>').appendTo('#login')
+                '  </div>').appendTo('#alerts')
         } else {
             socket.emit('CheckName', name, password);
         }
     });
 
+    $('#profilepicture').change(function (e) {
+        var filename = ($('#profilepicture'))[0].files[0].name;
+        $('#profilepicturelabel').html(filename);
+    });
+
     //function for the click on the button to upload the profile picture
     $('#profilebutton').click(function (e) {
-        let blob = new Blob($('#profilepicture').prop('files'), {type: ($('#profilepicture'))[0].files[0].type});
-        //var filename = ($('#profilepicture'))[0].files[0].name;
-        let reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onload = function () {
-            console.log("OnloadClient")
-            socket.emit('profile picture upload', reader.result);
+        var filetype = ($('#profilepicture'))[0].files[0].type;
+        var filesize = ($('#profilepicture'))[0].files[0].size;
+        if((filetype === "image/jpeg" || filetype === "image/tiff" || filetype === "image/gif" || filetype === "image/png") &&
+            filesize < 10000000){
+            $('#join').prop('disabled', true);
+            $('#profilebutton').prop('disabled', true);
+            let blob = new Blob($('#profilepicture').prop('files'), {type: filetype});
+            let reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onload = function () {
+                socket.emit('profile picture upload', reader.result, filetype);
+            }
+        } else {
+            $('#alerts').empty();
+            $('<div class="alert alert-warning alert-dismissible">\n' +
+                '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+                '    <strong>Image is larger than 10MB or hast the wrong datatype</strong>\n' +
+                '  </div>').appendTo('#alerts')
         }
+
     });
 
     //Message that the chosen username is already connected to the chat
     socket.on('AlreadyConnected', function () {
+        $('#alerts').empty();
         $('<div class="alert alert-warning alert-dismissible">\n' +
             '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
             '    <strong>User is already connected!</strong>\n' +
-            '  </div>').appendTo('#login')
+            '  </div>').appendTo('#alerts')
     });
 
     //Message that the chosen username or password is too long
     socket.on('NamePasswordTooLong', function () {
+        $('#alerts').empty();
         $('<div class="alert alert-warning alert-dismissible">\n' +
             '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
             '    <strong>Username or password is too long! (max. 20 characters)</strong>\n' +
-            '  </div>').appendTo('#login')
+            '  </div>').appendTo('#alerts')
     });
 
     //Message that the name the user chose is already in use in the database or typed in the wrong password
     socket.on('WrongPassword', function () {
+        $('#alerts').empty();
         $('<div class="alert alert-warning alert-dismissible">\n' +
             '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
             '    <strong>Name is already in use! Or forgot your password?</strong>\n' +
-            '  </div>').appendTo('#login')
+            '  </div>').appendTo('#alerts')
     });
 
     //Message that the name of the user is not in use and can join
     socket.on('NameOK', function (username) {
-        name = username;
-        socket.emit('join',name);
+        socket.emit('join',username);
+        $('#alerts').empty();
         $('#login').detach();
         $('#chat').show();
         $('#userinput').show();
@@ -109,11 +132,12 @@ $(function () {
     });
 
     //updates the list of the connected users
-    socket.on('update-people',function (people) {
+    socket.on('update-people',function (people, profilepictures) {
         $("#people").empty();
         $('#people').append('<h3>Users Connected:</h3></li>');
         $.each(people, function(clientid, name) {
-            $('#people').append($('<li>').text(name));
+            var text = "<li><a data-toggle=\"tooltip\" title=\"<img src=\'" + profilepictures[socket.id] + "\' />" + name + "</a></li>";
+            $('#people').append($('<li id=' + socket.id + '>').text(name));
         });
     });
 
@@ -131,11 +155,23 @@ $(function () {
     });
 
     socket.on('ContainsFace', function () {
-        alert("ContainsFace");
+        $('#alerts').empty();
+        $('#join').prop('disabled', false);
+        $('#profilebutton').prop('disabled', false);
+        $('<div class="alert alert-success alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>Picture contains a face and can be used</strong>\n' +
+            '  </div>').appendTo('#alerts')
     });
 
     socket.on('NoFace', function () {
-        alert("NoFace");
+        $('#alerts').empty();
+        $('#join').prop('disabled', false);
+        $('#profilebutton').prop('disabled', false);
+        $('<div class="alert alert-warning alert-dismissible">\n' +
+            '    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
+            '    <strong>Picture does not contain a face</strong>\n' +
+            '  </div>').appendTo('#alerts')
     })
 });
 
