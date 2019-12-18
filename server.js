@@ -8,8 +8,11 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var https = require('https').createServer({
+    key: fs.readFileSync('./server.key'),
+    cert: fs.readFileSync('./server.cert')
+}, app);
+var io = require('socket.io')(https);
 var uploadid;
 var accesstoken;
 var people = {};
@@ -23,14 +26,14 @@ var visualRecognition = new VisualRecognitionV3({
 const GetAccessToken = new Promise(
     function (resolve, reject) {
         var result;
-        const Http = new XMLHttpRequest();
+        const Https = new XMLHttpRequest();
         const url = 'https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/auth/tokens';
         var body = JSON.stringify({ "userid": "nqx39539", "password": "j6665@x0vzsk7wgt"});
-        Http.open("POST", url);
-        Http.send(body);
-        Http.onreadystatechange=function(){
+        Https.open("POST", url);
+        Https.send(body);
+        Https.onreadystatechange=function(){
             if(this.readyState==4 && this.status==200){
-                result = JSON.parse(Http.responseText);
+                result = JSON.parse(Https.responseText);
                 resolve(result);
             }
         };
@@ -63,14 +66,14 @@ io.on('connection', function (socket) {
 
             function (resolve, reject) {
                 var result;
-                const Http = new XMLHttpRequest();
+                const Https = new XMLHttpRequest();
                 const url = 'https://eu-de.functions.cloud.ibm.com/api/v1/web/cb82dc99-bde9-4300-900d-ca3e8a0d53f6/hrt-demo/identify-and-translate/?text=' + msg;
-                Http.open("GET", url);
-                Http.send();
+                Https.open("GET", url);
+                Https.send();
 
-                Http.onreadystatechange=function(){
+                Https.onreadystatechange=function(){
                     if(this.readyState==4 && this.status==200){
-                        result = JSON.parse(Http.responseText);
+                        result = JSON.parse(Https.responseText);
                         console.log(result.translations);
                         resolve(result.translations);
                     }
@@ -269,7 +272,7 @@ function getTimestamp(){
     return (dd + '.' + mm + '.' + yyyy + ' ' + hr + ':' + mi + ':' + ss);
 }
 
-http.listen(3000, function () {
+https.listen(3000, function () {
     console.log('listening on *:3000');
 });
 
