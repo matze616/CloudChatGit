@@ -24,7 +24,7 @@ const GetAccessToken = new Promise(
         var result;
         const Http = new XMLHttpRequest();
         const url = 'https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/auth/tokens';
-        var body = JSON.stringify({ "userid": "nqx39539", "password": "j6665@x0vzsk7wgt"});
+        var body = JSON.stringify({ "userid": "chk51071", "password": "xt2r3mjzwp-lr2t9"});
         Http.open("POST", url);
         Http.send(body);
         Http.onreadystatechange=function(){
