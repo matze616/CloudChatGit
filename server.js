@@ -20,9 +20,6 @@ var visualRecognition = new VisualRecognitionV3({
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
 });
 
-var express = require('express')
-, helmet = require('helmet');
-
 function Security(app) {
   if (process.env['NODE_ENV'] === "TEST"  ||
     process.env['NODE_ENV'] === "COVERAGE") return;
@@ -35,7 +32,7 @@ function Security(app) {
   app.use(express.csrf());
 };
 
-module.exports = Security;
+Security;
 
 // Determine port to listen on
 var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
