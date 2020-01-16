@@ -2,7 +2,7 @@
 //Version 0.0.1
 //Author: Matthias Schülein (751450), Philipp Kriegeskorte (761341)
 
-
+var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 var express = require('express');
 var helmet = require('helmet');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
@@ -32,9 +32,8 @@ var visualRecognition = new VisualRecognitionV3({
 Security;
 */
 // Determine port to listen on
-var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
-app.enable('trust proxy');
 
+app.enable('trust proxy');
 
 app.use (function (req, res, next) {
         if (req.secure) {
@@ -43,7 +42,6 @@ app.use (function (req, res, next) {
                 res.redirect('https://' + req.headers.host + req.url);
         }
 });
-
 app.use(express.static(__dirname + '/user'));
 
 
