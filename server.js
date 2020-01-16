@@ -9,7 +9,6 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-app.use(helmet())
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var uploadid;
@@ -43,7 +42,7 @@ GetAccessToken.then(function (answer) {
     accesstoken = answer.token;
 });
 
-app.use(express.static(__dirname + '/user'));
+app.use(helmet(),express.static(__dirname + '/user'));
 
 io.on('connection', function (socket) {
     //uploadid for file uploading
