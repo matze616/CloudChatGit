@@ -20,7 +20,23 @@ var visualRecognition = new VisualRecognitionV3({
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
 });
 
-app.use(helmet());
+var express = require('express')
+, helmet = require('helmet');
+
+function Security(app) {
+  if (process.env['NODE_ENV'] === "TEST"  ||
+    process.env['NODE_ENV'] === "COVERAGE") return;
+
+  app.use(helmet.xframe());
+  app.use(helmet.hsts());
+  app.use(helmet.iexss());
+  app.use(helmet.contentTypeOptions());
+  app.use(helmet.cacheControl());
+  app.use(express.csrf());
+};
+
+module.exports = Security;
+
 
 
 const GetAccessToken = new Promise(
