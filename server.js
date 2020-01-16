@@ -37,6 +37,20 @@ function Security(app) {
 
 module.exports = Security;
 
+// Determine port to listen on
+var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
+app.enable('trust proxy');
+
+
+app.use (function (req, res, next) {
+        if (req.secure) {
+                next();
+        } else {
+                res.redirect('https://' + req.headers.host + req.url);
+        }
+});
+
+app.use(express.static(__dirname + '/user'));
 
 
 const GetAccessToken = new Promise(
@@ -61,7 +75,7 @@ GetAccessToken.then(function (answer) {
     accesstoken = answer.token;
 });
 
-app.use(express.static(__dirname + '/user'));
+
 
 io.on('connection', function (socket) {
     //uploadid for file uploading
@@ -290,9 +304,13 @@ function getTimestamp(){
     }
     return (dd + '.' + mm + '.' + yyyy + ' ' + hr + ':' + mi + ':' + ss);
 }
-
+/*
 http.listen(8080, function () {
     console.log('listening on *:8080');
+});
+*/
+var server = app.listen(port, function() {
+    console.log('Listening on port %d', server.address().port);
 });
 
 /*
