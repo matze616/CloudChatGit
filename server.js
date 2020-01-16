@@ -20,7 +20,7 @@ var visualRecognition = new VisualRecognitionV3({
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
 });
 
-function Security(app) {
+/*function Security(app) {
   app.use(helmet.xframe());
   app.use(helmet.hsts());
   app.use(helmet.iexss());
@@ -30,7 +30,7 @@ function Security(app) {
 };
 
 Security;
-
+*/
 // Determine port to listen on
 var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 app.enable('trust proxy');
