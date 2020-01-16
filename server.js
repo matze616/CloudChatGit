@@ -4,7 +4,7 @@
 
 
 var express = require('express');
-var helmet = require('helmet')
+var helmet = require('helmet');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
