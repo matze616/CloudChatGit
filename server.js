@@ -32,7 +32,7 @@ var visualRecognition = new VisualRecognitionV3({
 Security;
 */
 // Determine port to listen on
-
+/*
 var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 
 app.enable('trust proxy');
@@ -43,7 +43,7 @@ app.use (function (req, res, next) {
         } else {
                 res.redirect('https://' + req.headers.host + req.url);
         }
-});
+});*/
 app.use(express.static(__dirname + '/user'));
 
 
@@ -298,16 +298,16 @@ function getTimestamp(){
     }
     return (dd + '.' + mm + '.' + yyyy + ' ' + hr + ':' + mi + ':' + ss);
 }
-/*
+
 http.listen(8080, function () {
     console.log('listening on *:8080');
 });
-*/
 
+/*
 var server = app.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
 });
-
+*/
 /*
 Sequence Diagram:
 - Sending: https://sequencediagram.org/index.html#initialData=C4S2BsFMAIFlIM4IIYHNIHoBiIrQMqQB2AJiEagFADC4IxwAjALQB8hATgG6QcBc0AMYALZMGgBbRCnQAaaADNcMAK4AHcAHtkJSpx4c2tekWAAmASLGTpaSPKV4EDPbwNG6DAMyXR4qUh2NJ6mLOxuvAIA7sIgCGq8NoHorty8HibAPtAxcQkcSTKQQA
