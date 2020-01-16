@@ -5,7 +5,6 @@
 
 var express = require('express');
 var helmet = require('helmet');
-var bcrypt = require('bcryptjs');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
@@ -141,88 +140,77 @@ io.on('connection', function (socket) {
 
     //checks if the name the user has chosen is already in use
     socket.on('CheckName', function (name, password) {
-        bcrypt.genSalt(10, function (err, salt) {
-            bcrypt.hash(password, salt, function (err, hashedPassword) {
-                console.log(hashedPassword);
-                if (Object.values(people).includes(name.trim())){
-                    io.to(socket.id).emit('AlreadyConnected');
-                } else if ((name.trim().length > 20) || (password.length > 20)) {
-                    io.to(socket.id).emit('NamePasswordTooLong');
-                } else {
+        if (Object.values(people).includes(name.trim())){
+            io.to(socket.id).emit('AlreadyConnected');
+        } else if ((name.trim().length > 20) || (password.length > 20)) {
+            io.to(socket.id).emit('NamePasswordTooLong');
+        } else {
 
-                    //Get all informations from the database and check if the username exists and the password is correct
-                    var SQLRun;
-                    var body = JSON.stringify({
-                        "commands": "SELECT * FROM USERINFORMATION;",
-                        "limit": "100",
-                        "separator": ";",
-                        "stop_on_error": "no"
-                    });
-                    var xhr = new XMLHttpRequest();
-                    xhr.withCredentials = true;
-                    xhr.addEventListener("readystatechange", function () {
+            //Get all informations from the database and check if the username exists and the password is correct
+            var SQLRun;
+            var body = JSON.stringify({
+                "commands": "SELECT * FROM USERINFORMATION;",
+                "limit": "10",
+                "separator": ";",
+                "stop_on_error": "no"
+            });
+            var xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === 4) {
+                    SQLRun = JSON.parse(this.responseText);
+                    var rows;
+                    var usernamelist = [];
+                    var passwords = [];
+                    var xhr2 = new XMLHttpRequest();
+                    xhr2.withCredentials = true;
+                    xhr2.addEventListener("readystatechange", function () {
                         if (this.readyState === 4) {
-                            SQLRun = JSON.parse(this.responseText);
-                            var rows;
-                            var usernamelist = [];
-                            var passwords = [];
-                            var xhr2 = new XMLHttpRequest();
-                            xhr2.withCredentials = true;
-                            xhr2.addEventListener("readystatechange", function () {
-                                if (this.readyState === 4) {
-                                    rows = JSON.parse(this.responseText);
-                                    for (i = 0; i < rows.results[0].rows.length; i++) {
-                                        usernamelist.push(rows.results[0].rows[i][0]);
-                                        passwords.push(rows.results[0].rows[i][1]);
+                            rows = JSON.parse(this.responseText);
+                            for (i = 0; i < rows.results[0].rows.length; i++) {
+                                usernamelist.push(rows.results[0].rows[i][0]);
+                                passwords.push(rows.results[0].rows[i][1]);
+                            }
+                            console.log(usernamelist);
+                            console.log(passwords);
+                            if (usernamelist.includes(name.trim()) && (usernamelist.indexOf(name) === passwords.indexOf(password))) {
+                                io.to(socket.id).emit('NameOK', name.trim());
+                            } else if (usernamelist.includes(name.trim())) {
+                                io.to(socket.id).emit('WrongPassword');
+                            } else {
+                                var body3 = JSON.stringify({
+                                    "commands": "INSERT INTO USERINFORMATION VALUES (\'" + name.trim() + "\',\'" + password + "\');",
+                                    "limit": "10",
+                                    "separator": ";",
+                                    "stop_on_error": "no"
+                                });
+                                var xhr3 = new XMLHttpRequest();
+                                xhr3.withCredentials = true;
+                                xhr3.addEventListener('readystatechange', function () {
+                                    if (this.readyState === 4) {
+                                        console.log(this.responseText);
+                                        io.to(socket.id).emit('NameOK', name.trim());
                                     }
-                                    console.log(usernamelist);
-                                    console.log(passwords);
-                                    if(!(usernamelist.includes(name.trim()))){
-                                        console.log(hashedPassword);
-                                        var body3 = JSON.stringify({
-                                            "commands": "INSERT INTO USERINFORMATION VALUES (\'" + name.trim() + "\',\'" + hashedPassword + "\');",
-                                            "limit": "100",
-                                            "separator": ";",
-                                            "stop_on_error": "no"
-                                        });
-                                        var xhr3 = new XMLHttpRequest();
-                                        xhr3.withCredentials = true;
-                                        xhr3.addEventListener('readystatechange', function () {
-                                            if (this.readyState === 4) {
-                                                console.log("NameOk");
-                                                io.to(socket.id).emit('NameOK', name.trim());
-                                            }
-                                        });
-                                        xhr3.open("POST", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs");
-                                        xhr3.setRequestHeader("Content-Type", "application/json");
-                                        xhr3.setRequestHeader("Authorization", "Bearer " + accesstoken);
-                                        xhr3.send(body3);
-                                    } else {
-                                        bcrypt.compare(password, passwords[usernamelist.indexOf(name)], function (err, res) {
-                                            if (res){
-                                                io.to(socket.id).emit('NameOK', name.trim());
-                                            } else {
-                                                io.to(socket.id).emit('WrongPassword');
-                                            }
-                                        })
-                                    }
-                                }
-                            });
-                            xhr2.open("GET", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs/" + SQLRun.id);
-                            xhr2.setRequestHeader("Content-Type", "application/json");
-                            xhr2.setRequestHeader("Authorization", "Bearer " + accesstoken);
-                            xhr2.send();
+                                });
+                                xhr3.open("POST", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs");
+                                xhr3.setRequestHeader("Content-Type", "application/json");
+                                xhr3.setRequestHeader("Authorization", "Bearer " + accesstoken);
+                                xhr3.send(body3);
+                            }
                         }
                     });
-                    xhr.open("POST", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs");
-                    xhr.setRequestHeader("Content-Type", "application/json");
-                    xhr.setRequestHeader("Authorization", "Bearer " + accesstoken);
-                    xhr.send(body);
+                    xhr2.open("GET", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs/" + SQLRun.id);
+                    xhr2.setRequestHeader("Content-Type", "application/json");
+                    xhr2.setRequestHeader("Authorization", "Bearer " + accesstoken);
+                    xhr2.send();
+
                 }
-
-
-            })
-        });
+            });
+            xhr.open("POST", "https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/sql_jobs");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + accesstoken);
+            xhr.send(body);
+        }
     });
 
     //sends the data from the sending sockets to all other connected sockets
