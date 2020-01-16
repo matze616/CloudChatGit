@@ -20,8 +20,7 @@ var visualRecognition = new VisualRecognitionV3({
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
 });
 
-app.use(helmet.csp());
-app.use(helmet.xframe('sameorigin'));
+app.use(helmet());
 
 
 const GetAccessToken = new Promise(
