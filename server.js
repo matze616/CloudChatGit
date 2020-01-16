@@ -22,6 +22,9 @@ var visualRecognition = new VisualRecognitionV3({
 });
 
 function Security(app) {
+  if (process.env['NODE_ENV'] === "TEST"  ||
+    process.env['NODE_ENV'] === "COVERAGE") return;
+
   app.use(helmet.xframe());
   app.use(helmet.hsts());
   app.use(helmet.iexss());
