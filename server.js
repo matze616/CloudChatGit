@@ -20,6 +20,10 @@ var visualRecognition = new VisualRecognitionV3({
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
 });
 
+app.use(helmet.csp());
+app.use(helmet.xframe('sameorigin'));
+
+
 const GetAccessToken = new Promise(
     function (resolve, reject) {
         var result;
@@ -42,7 +46,7 @@ GetAccessToken.then(function (answer) {
     accesstoken = answer.token;
 });
 
-app.use(helmet(),express.static(__dirname + '/user'));
+app.use(express.static(__dirname + '/user'));
 
 io.on('connection', function (socket) {
     //uploadid for file uploading
