@@ -2,9 +2,9 @@
 //Version 0.0.1
 //Author: Matthias Schülein (751450), Philipp Kriegeskorte (761341)
 
-var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
+
 var express = require('express');
-var helmet = require('helmet');
+//var helmet = require('helmet');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
@@ -32,6 +32,8 @@ var visualRecognition = new VisualRecognitionV3({
 Security;
 */
 // Determine port to listen on
+
+var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
 
 app.enable('trust proxy');
 
@@ -301,6 +303,7 @@ http.listen(8080, function () {
     console.log('listening on *:8080');
 });
 */
+
 var server = app.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
 });
