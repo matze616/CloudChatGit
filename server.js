@@ -10,14 +10,14 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
+var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 var server = app.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
 });
 // var https = require('https');
 //var http = require('http');//.createServer(app);
 
-var io = require('socket.io')(server);
+var io = require('socket.io').listen(server);
 var uploadid;
 var accesstoken;
 var people = {};
