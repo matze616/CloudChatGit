@@ -39,18 +39,20 @@ var visualRecognition = new VisualRecognitionV3({
 Security;
 */
 // Determine port to listen on
+app.use (function (req, res, next) {
+    if (req.secure) {
+            next();
+    } else {
+            res.redirect('https://' + req.headers.host + req.url);
+    }
+});
+
+
 app.use(express.static(__dirname + '/user'));
 
 
 app.enable('trust proxy');
 
-app.use (function (req, res, next) {
-        if (req.secure) {
-                next();
-        } else {
-                res.redirect('https://' + req.headers.host + req.url);
-        }
-});
 
 
 
