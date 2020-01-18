@@ -10,7 +10,7 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-var http = require('http').createServer(app);
+var http = require('https').createServer(app);
 var io = require('socket.io')(http);
 var uploadid;
 var accesstoken;
@@ -37,9 +37,9 @@ app.use(express.static(__dirname + '/user'));
 
 var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 
-http.enable('trust proxy');
+app.enable('trust proxy');
 
-http.use (function (req, res, next) {
+app.use (function (req, res, next) {
         if (req.secure) {
                 next();
         } else {
