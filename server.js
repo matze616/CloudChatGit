@@ -10,7 +10,9 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-var http = require('http').createServer(app);
+var http = require('https');
+
+//var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var uploadid;
 var accesstoken;
@@ -329,9 +331,7 @@ app.use (function (req, res, next) {
         }
 });
 
-
-
-var server = http.listen(port, function() {
+var server = http.createServer(app).listen(port, function() {
     console.log('Listening on port %d', server.address().port);
 });
 
