@@ -10,8 +10,8 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-var https = require('https').createServer(app);
-var io = require('socket.io')(https);
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
 var uploadid;
 var accesstoken;
 var people = {};
@@ -53,14 +53,14 @@ app.use (function (req, res, next) {
 const GetAccessToken = new Promise(
     function (resolve, reject) {
         var result;
-        const Https = new XMLHttpRequest();
+        const Http = new XMLHttpRequest();
         const url = 'https://dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/dbapi/v4/auth/tokens';
         var body = JSON.stringify({ "userid": "chk51071", "password": "xt2r3mjzwp-lr2t9"});
-        Https.open("POST", url);
-        Https.send(body);
-        Https.onreadystatechange=function(){
+        Http.open("POST", url);
+        Http.send(body);
+        Http.onreadystatechange=function(){
             if(this.readyState==4 && this.status==200){
-                result = JSON.parse(Https.responseText);
+                result = JSON.parse(Http.responseText);
                 resolve(result);
             }
         };
@@ -94,14 +94,14 @@ io.on('connection', function (socket) {
 
             function (resolve, reject) {
                 var result;
-                const Https = new XMLHttpRequest();
+                const Http = new XMLHttpRequest();
                 const url = 'https://eu-de.functions.cloud.ibm.com/api/v1/web/cb82dc99-bde9-4300-900d-ca3e8a0d53f6/hrt-demo/identify-and-translate/?text=' + msg;
-                Https.open("GET", url);
-                Https.send();
+                Http.open("GET", url);
+                Http.send();
 
-                Https.onreadystatechange=function(){
+                Http.onreadystatechange=function(){
                     if(this.readyState==4 && this.status==200){
-                        result = JSON.parse(Https.responseText);
+                        result = JSON.parse(Http.responseText);
                         console.log(result.translations);
                         resolve(result.translations);
                     }
@@ -320,8 +320,7 @@ http.listen(8080, function () {
 */
 
 
-
-var server = app.listen(port, function() {
+var server = http.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
 });
 
