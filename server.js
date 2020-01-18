@@ -36,7 +36,13 @@ app.use (function (req, res, next) {
     }
 });
 
-app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", 'maxcdn.bootstrapcdn.com'],
+        scriptSrc: ["'self'", "'code.jquery.com'"]
+    }
+}));
 
 /*
 function Security(app) {
