@@ -40,7 +40,7 @@ app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
     directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", 'maxcdn.bootstrapcdn.com'],
+        styleSrc: ["'self'", 'code.jquery.com', 'maxcdn.bootstrapcdn.com', 'stackpath.bootstrapcdn.com'],
         scriptSrc: ["'self'", 'code.jquery.com', 'maxcdn.bootstrapcdn.com']
     }
 }));
