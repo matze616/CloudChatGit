@@ -324,28 +324,6 @@ http.listen(8080, function () {
 });
 */
 
-app.enable('trust proxy');
-
-app.use (function (req, res, next) {
-        if (req.secure) {
-                next();
-        } else {
-                res.redirect('https://' + req.headers.host + req.url);
-        }
-});
-
-/*
-
-var server = app.listen(port, function() {
-    console.log('Listening on port %d', server.address().port);
-});
-
-
-var server = https.createServer(app).listen(port, function() {
-    console.log('Listening on port %d', server.address().port);
-});
-
-
 /*
 Sequence Diagram:
 - Sending: https://sequencediagram.org/index.html#initialData=C4S2BsFMAIFlIM4IIYHNIHoBiIrQMqQB2AJiEagFADC4IxwAjALQB8hATgG6QcBc0AMYALZMGgBbRCnQAaaADNcMAK4AHcAHtkJSpx4c2tekWAAmASLGTpaSPKV4EDPbwNG6DAMyXR4qUh2NJ6mLOxuvAIA7sIgCGq8NoHorty8HibAPtAxcQkcSTKQQA
