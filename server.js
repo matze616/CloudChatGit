@@ -4,7 +4,7 @@
 
 
 var express = require('express');
-//var helmet = require('helmet');
+var helmet = require('helmet');
 var bcrypt = require('bcryptjs');
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
@@ -27,7 +27,19 @@ var visualRecognition = new VisualRecognitionV3({
     iam_apikey: 'sycCyMLBkbSzpKnS6Ub2-wp5-w30gG00QpkU6sf4liZr'
 });
 
-/*function Security(app) {
+//------ WICHTIG !!!! diese Funktion muss immer die erste app.use Funktion im Code Sein !!!
+app.use (function (req, res, next) {
+    if (req.secure) {
+        next();
+    } else {
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+});
+
+app.use(helmet());
+
+/*
+function Security(app) {
   app.use(helmet.xframe());
   app.use(helmet.hsts());
   app.use(helmet.iexss());
@@ -36,19 +48,9 @@ var visualRecognition = new VisualRecognitionV3({
   app.use(express.csrf());
 };
 
-Security;
-*/
+Security(app);
 
-
-//------ WICHTIG !!!! diese Funktion muss immer die erste app.use Funktion im Code Sein !!! 
-app.use (function (req, res, next) {
-    if (req.secure) {
-            next();
-    } else {
-            res.redirect('https://' + req.headers.host + req.url);
-    }
-});
-
+ */
 
 app.use(express.static(__dirname + '/user'));
 
