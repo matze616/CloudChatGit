@@ -35,16 +35,18 @@ app.use (function (req, res, next) {
         res.redirect('https://' + req.headers.host + req.url);
     }
 });
-
+/*
 app.use(helmet.contentSecurityPolicy({
     directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", 'maxcdn.bootstrapcdn.com'],
-        scriptSrc: ["'self'", "'code.jquery.com'"]
+        scriptSrc: ["'self'", 'code.jquery.com', 'maxcdn.bootstrapcdn.com']
     }
 }));
 
-/*
+
+ */
+
 function Security(app) {
   app.use(helmet.xframe());
   app.use(helmet.hsts());
@@ -54,9 +56,8 @@ function Security(app) {
   app.use(express.csrf());
 };
 
-Security(app);
+Security();
 
- */
 
 app.use(express.static(__dirname + '/user'));
 
