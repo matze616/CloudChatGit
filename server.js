@@ -33,8 +33,9 @@ var visualRecognition = new VisualRecognitionV3({
 Security;
 */
 // Determine port to listen on
+app.use(express.static(__dirname + '/user'));
 
-var port = (process.env.PORT || process.env.VCAP_APP_PORT || 3000);
+var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 
 app.enable('trust proxy');
 
@@ -46,7 +47,7 @@ app.use (function (req, res, next) {
         }
 });
 
-app.use(express.static(__dirname + '/user'));
+
 
 
 const GetAccessToken = new Promise(
