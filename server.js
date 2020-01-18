@@ -10,20 +10,6 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var fs = require('fs');
 var app = express();
-
-app.enable('trust proxy');
-
-app.use(express.static(__dirname + '/user'));
-
-
-app.use (function (req, res, next) {
-        if (req.secure) {
-                next();
-        } else {
-                res.redirect('https://' + req.headers.host + req.url);
-        }
-});
-
 var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 var server = app.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
@@ -53,7 +39,18 @@ var visualRecognition = new VisualRecognitionV3({
 Security;
 */
 // Determine port to listen on
+app.use(express.static(__dirname + '/user'));
 
+
+app.enable('trust proxy');
+
+app.use (function (req, res, next) {
+        if (req.secure) {
+                next();
+        } else {
+                res.redirect('https://' + req.headers.host + req.url);
+        }
+});
 
 
 
