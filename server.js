@@ -39,7 +39,7 @@ var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 
 app.enable('trust proxy');
 
-http.use (function (req, res, next) {
+app.use (function (req, res, next) {
         if (req.secure) {
                 next();
         } else {
@@ -318,6 +318,17 @@ http.listen(8080, function () {
     console.log('listening on *:8080');
 });
 */
+
+app.enable('trust proxy');
+
+app.use (function (req, res, next) {
+        if (req.secure) {
+                next();
+        } else {
+                res.redirect('https://' + req.headers.host + req.url);
+        }
+});
+
 
 
 var server = http.listen(port, function() {
