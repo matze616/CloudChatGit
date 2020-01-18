@@ -38,7 +38,9 @@ var visualRecognition = new VisualRecognitionV3({
 
 Security;
 */
-// Determine port to listen on
+
+
+//------ WICHTIG !!!! diese Funktion muss immer die erste app.use Funktion im Code Sein !!! 
 app.use (function (req, res, next) {
     if (req.secure) {
             next();
