@@ -37,9 +37,9 @@ app.use(express.static(__dirname + '/user'));
 
 var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 
-app.enable('trust proxy');
+http.enable('trust proxy');
 
-app.use (function (req, res, next) {
+http.use (function (req, res, next) {
         if (req.secure) {
                 next();
         } else {
