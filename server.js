@@ -37,6 +37,7 @@ app.use (function (req, res, next) {
 });
 
 app.use(helmet());
+/*
 app.use(helmet.contentSecurityPolicy({
     directives: {
         defaultSrc: ["'self'"],
@@ -44,7 +45,7 @@ app.use(helmet.contentSecurityPolicy({
         scriptSrc: ["'self'", 'code.jquery.com', 'maxcdn.bootstrapcdn.com']
     }
 }));
-
+*/
 app.use(express.static(__dirname + '/user'));
 
 
