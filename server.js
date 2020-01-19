@@ -14,6 +14,8 @@ var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8080);
 var server = app.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
 });
+var vcapApplication = JSON.parse(process.env.VCAP_APPLICATION);
+var logPrefix= vcapApplication.application_name + vcapApplication.instance_index;
 // var https = require('https');
 //var http = require('http');//.createServer(app);
 
@@ -80,6 +82,7 @@ GetAccessToken.then(function (answer) {
 
 
 io.on('connection', function (socket) {
+    console.log(logPrefix);
     //uploadid for file uploading
     uploadid = 0;
 
